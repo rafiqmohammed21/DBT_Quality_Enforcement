@@ -1,0 +1,38 @@
+name: DBT CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          pip install sqlfluff dbt
+          pip install -r requirements.txt
+      - name: Lint SQL with SQLFluff
+        run: sqlfluff lint models/
+      - name: Run DBT Tests
+        run: dbt test
+      - name: Run DBT Build (Optional)
+        run: dbt run --target ci
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          pip install dbt
+          pip install -r requirements.txt
+      - name: Run DBT Tests
+        run: dbt test
